@@ -1,0 +1,24 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "t.matsuda.1000@gmail.com",
+    "longName": "battery log",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "batterylog",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "705c3eb4-90e1-4a63-82fa-ee34c05ce61c",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
