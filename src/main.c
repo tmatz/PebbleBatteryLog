@@ -201,7 +201,7 @@ static void handle_init(void) {
   
   s_battery_layer = text_layer_create(GRect(0, 120, bounds.size.w, 34));
   // text_layer_set_text_color(s_battery_layer, GColorWhite);
-  // text_layer_set_background_color(s_battery_layer, GColorClear);
+  text_layer_set_background_color(s_battery_layer, GColorClear);
   text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
   text_layer_set_text_alignment(s_battery_layer, GTextAlignmentCenter);
   text_layer_set_text(s_battery_layer, "100% charged");
