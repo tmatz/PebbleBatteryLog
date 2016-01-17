@@ -67,6 +67,19 @@ void save_charge_log(ChargeLog* charge_log)
   }
 }
 
+static void update_last_charge_log()
+{
+  ChargeLog log;
+  if (!get_last_charge_log(&log)) {
+    text_layer_set_text(s_battery_layer, "");
+  } else {
+    struct tm* t = localtime(&log.time);
+    static char buff[] = "01/01 00:00 100%";
+    snprintf(buff, sizeof(buff), "%d/%d %02d:%02d %d%%", t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, log.charge_state.charge_percent);
+    text_layer_set_text(s_battery_layer, buff);
+  }
+}
+
 static void show_charge_log()
 {
   if (!persist_exists(PERSIST_KEY_LOG_COUNT) || !persist_exists(PERSIST_KEY_LOG_INDEX)) {
@@ -105,22 +118,6 @@ static void save_charge_state(BatteryChargeState* charge_state)
   }
 }
 
-static void show_charge_state(BatteryChargeState* charge_state)
-{
-  save_charge_state(charge_state);
-  show_charge_log();
-  
-  static char battery_text[] = "100% charging";
-
-  if (charge_state->is_charging) {
-    snprintf(battery_text, sizeof(battery_text), "%d%% charging", charge_state->charge_percent);
-  } else {
-    snprintf(battery_text, sizeof(battery_text), "%d%% charged", charge_state->charge_percent);
-  }
-  
-  text_layer_set_text(s_battery_layer, battery_text);
-}
-
 static bool schedule_wakeup_measure_battery_state()
 {
   s_wakeup_id = wakeup_schedule(time(NULL) + WAKEUP_INTERVAL, 0 /*cookie*/, true /*notify_if_missed*/);
@@ -129,18 +126,13 @@ static bool schedule_wakeup_measure_battery_state()
 
 static void handle_wakeup(WakeupId wakeup_id, int32_t cookie)
 {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "handle_wakeup");
   BatteryChargeState charge_state = battery_state_service_peek();
   save_charge_state(&charge_state);
-  show_charge_log();
+  update_last_charge_log();
   
   schedule_wakeup_measure_battery_state();
 }
   
-static void handle_battery(BatteryChargeState charge_state) {
-  show_charge_state(&charge_state);
-}
-
 static void update_graph_layer(Layer *layer, GContext *ctx) {
   graphics_context_set_stroke_color(ctx, GColorBlack);
   GRect bounds = layer_get_bounds(layer);
@@ -196,20 +188,17 @@ static void handle_init(void) {
   s_battery_layer = text_layer_create(GRect(0, 0, 144, 20));
   window_stack_push(s_main_window, true);
   
-  s_graph_layer = layer_create(grect_crop(GRect(0, 0, bounds.size.w, bounds.size.h), 10));
+  s_graph_layer = layer_create(grect_crop(GRect(0, 0, bounds.size.w, bounds.size.h - 34), 10));
   layer_set_update_proc(s_graph_layer, update_graph_layer);
   
-  s_battery_layer = text_layer_create(GRect(0, 120, bounds.size.w, 34));
-  // text_layer_set_text_color(s_battery_layer, GColorWhite);
+  s_battery_layer = text_layer_create(GRect(0, bounds.size.h - 34, bounds.size.w, 34));
   text_layer_set_background_color(s_battery_layer, GColorClear);
   text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
   text_layer_set_text_alignment(s_battery_layer, GTextAlignmentCenter);
-  text_layer_set_text(s_battery_layer, "100% charged");
+  text_layer_set_text(s_battery_layer, "12/31 23:59 100%");
   
   layer_add_child(window_layer, s_graph_layer);
   layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));
-  
-  battery_state_service_subscribe(handle_battery);
   
   wakeup_service_subscribe(handle_wakeup);
   
@@ -219,7 +208,9 @@ static void handle_init(void) {
   schedule_wakeup_measure_battery_state();
   
   BatteryChargeState charge_state = battery_state_service_peek();
-  show_charge_state(&charge_state);
+  save_charge_state(&charge_state);
+  
+  update_last_charge_log();
 }
 
 static void handle_deinit(void) {
@@ -230,11 +221,10 @@ static void handle_deinit(void) {
 
 int main(void) {
   if (launch_reason() == APP_LAUNCH_WAKEUP) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "launch wakeup");
+    BatteryChargeState charge_state = battery_state_service_peek();
+    save_charge_state(&charge_state);
     schedule_wakeup_measure_battery_state();
-    show_charge_log();
   } else {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "launch other");
     handle_init();
     app_event_loop();
     handle_deinit();

@@ -4,13 +4,13 @@
         ""
     ],
     "companyName": "t.matsuda.1000@gmail.com",
-    "longName": "battery log",
+    "longName": "Battery Log",
     "projectType": "native",
     "resources": {
         "media": []
     },
     "sdkVersion": "3",
-    "shortName": "batterylog",
+    "shortName": "Battery Log",
     "targetPlatforms": [
         "aplite",
         "basalt",
