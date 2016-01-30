@@ -4,8 +4,8 @@
 #define PERSIST_KEY_LOG_INDEX 0x00000001
 #define PERSIST_KEY_LOG_BASE 0x00010000
 
-#define MAX_LOG_COUNT 20
-#define WAKEUP_INTERVAL (3 * 60 * 60) // seconds
+#define MAX_LOG_COUNT 100
+#define WAKEUP_INTERVAL (1 * 60 * 60) // seconds
 
 static Window *s_main_window;
 static TextLayer *s_battery_layer;
@@ -126,11 +126,10 @@ static bool schedule_wakeup_measure_battery_state()
 
 static void handle_wakeup(WakeupId wakeup_id, int32_t cookie)
 {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "handle_wakeup");
   BatteryChargeState charge_state = battery_state_service_peek();
   save_charge_state(&charge_state);
-  if (launch_reason() != APP_LAUNCH_WAKEUP) {
-    update_last_charge_log();
-  }
+  update_last_charge_log();
   schedule_wakeup_measure_battery_state();
 }
   
@@ -221,8 +220,12 @@ static void handle_deinit(void) {
 }
 
 int main(void) {
-  if (launch_reason() == APP_LAUNCH_WAKEUP)  {
-    wakeup_service_subscribe(handle_wakeup);
+  if (launch_reason() == APP_LAUNCH_WAKEUP) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "launch wakeup");
+    wakeup_service_subscribe(NULL);
+    BatteryChargeState charge_state = battery_state_service_peek();
+    save_charge_state(&charge_state);
+    schedule_wakeup_measure_battery_state();
     app_event_loop();
   } else {
     handle_init();
