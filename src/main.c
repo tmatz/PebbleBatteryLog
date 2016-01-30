@@ -221,12 +221,9 @@ static void handle_deinit(void) {
 }
 
 int main(void) {
-  if (launch_reason() == APP_LAUNCH_WAKEUP) {
-    BatteryChargeState charge_state = battery_state_service_peek();
-    save_charge_state(&charge_state);
-    schedule_wakeup_measure_battery_state();
+  if (launch_reason() == APP_LAUNCH_WAKEUP)  {
     wakeup_service_subscribe(handle_wakeup);
-      app_event_loop();
+    app_event_loop();
   } else {
     handle_init();
     app_event_loop();
