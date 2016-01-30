@@ -128,8 +128,9 @@ static void handle_wakeup(WakeupId wakeup_id, int32_t cookie)
 {
   BatteryChargeState charge_state = battery_state_service_peek();
   save_charge_state(&charge_state);
-  update_last_charge_log();
-  
+  if (launch_reason() != APP_LAUNCH_WAKEUP) {
+    update_last_charge_log();
+  }
   schedule_wakeup_measure_battery_state();
 }
   
@@ -224,6 +225,8 @@ int main(void) {
     BatteryChargeState charge_state = battery_state_service_peek();
     save_charge_state(&charge_state);
     schedule_wakeup_measure_battery_state();
+    wakeup_service_subscribe(handle_wakeup);
+      app_event_loop();
   } else {
     handle_init();
     app_event_loop();
