@@ -10,7 +10,6 @@
 static Window *s_main_window;
 static TextLayer *s_battery_layer;
 static Layer *s_graph_layer;
-static WakeupId s_wakeup_id = -1;
   
 typedef struct ChargeLog {
   time_t time;
@@ -120,8 +119,8 @@ static void save_charge_state(BatteryChargeState* charge_state)
 
 static bool schedule_wakeup_measure_battery_state()
 {
-  s_wakeup_id = wakeup_schedule(time(NULL) + WAKEUP_INTERVAL, 0 /*cookie*/, true /*notify_if_missed*/);
-  return s_wakeup_id >= 0;
+  WakeupId wakeup_id = wakeup_schedule(time(NULL) + WAKEUP_INTERVAL, 0 /*cookie*/, true /*notify_if_missed*/);
+  return wakeup_id >= 0;
 }
 
 static void handle_wakeup(WakeupId wakeup_id, int32_t cookie)
