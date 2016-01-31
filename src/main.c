@@ -202,9 +202,7 @@ static void handle_init(void) {
   
   wakeup_service_subscribe(handle_wakeup);
   
-  if (s_wakeup_id >= 0 && wakeup_query(s_wakeup_id, NULL)) {
-    wakeup_cancel(s_wakeup_id);
-  }
+  wakeup_cancel_all();
   schedule_wakeup_measure_battery_state();
   
   BatteryChargeState charge_state = battery_state_service_peek();
