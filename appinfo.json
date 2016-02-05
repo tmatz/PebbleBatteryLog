@@ -4,6 +4,7 @@
         ""
     ],
     "companyName": "t.matsuda.1000@gmail.com",
+    "enableMultiJS": false,
     "longName": "Battery Log",
     "projectType": "native",
     "resources": {

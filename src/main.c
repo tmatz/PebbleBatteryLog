@@ -74,7 +74,7 @@ static void update_last_charge_log()
   } else {
     struct tm* t = localtime(&log.time);
     static char buff[] = "01/01 00:00 100%";
-    snprintf(buff, sizeof(buff), "%d/%d %02d:%02d %d%%", t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, log.charge_state.charge_percent);
+    snprintf(buff, sizeof(buff), "%d/%d %02d:%02d %d%%", t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, log.charge_state.charge_percent);
     text_layer_set_text(s_battery_layer, buff);
   }
 }
