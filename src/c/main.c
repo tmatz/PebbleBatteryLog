@@ -101,7 +101,7 @@ static void show_charge_log()
     
     static char buff[] = "999 4294967296 %100";
     snprintf(buff, sizeof(buff), "%d %u %d%%", i, (unsigned)difftime(now, charge_log.time), charge_log.charge_state.charge_percent);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, buff);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", buff);
   }
 }
 
@@ -149,32 +149,34 @@ static void update_graph_layer(Layer *layer, GContext *ctx) {
   
   time_t now = time(NULL);
   unsigned max_time = 10 * 24 * 60 * 60; // 10days
-  int16_t x0 = -1;
+  int16_t x0 = w;
   int16_t y0 = -1;
-  for (int i = 0; i < count; ++i) {
+  
+  for (int i = count - 1; i >= 0; --i) {
     uint32_t key = PERSIST_KEY_LOG_BASE + (index + i) % MAX_LOG_COUNT;
     ChargeLog log;
     persist_read_data(key, &log, sizeof(log));
     unsigned t = (unsigned)difftime(now, log.time);
-    int16_t x = -1;
-    if (t <= max_time) {
+    int16_t x = 0;
+    if (t < max_time) {
       x = w - w * t / max_time;
     }
     int16_t y = h - h * log.charge_state.charge_percent / 100;
-    if (0 <= x) {
-      graphics_fill_circle(ctx, GPoint(x, y), 2);
-      
-      if (0 <= x0) {
-        graphics_draw_line(ctx, GPoint(x0, y0), GPoint(x, y0));
-        graphics_draw_line(ctx, GPoint(x, y0), GPoint(x, y));
-      }
+    if (y0 < 0) {
+      y0 = y;
     }
-    x0 = x;
-    y0 = y;
-  }
-  
-  if (0 <= y0) {
-    graphics_draw_line(ctx, GPoint(x0, y0), GPoint(w, y0));
+    
+    if (y != y0) {
+      graphics_draw_line(ctx, GPoint(x0, y), GPoint(x0, y0));
+    }
+    if (x != x0) {
+      graphics_draw_line(ctx, GPoint(x, y), GPoint(x0, y));
+    }
+    if (t <= max_time) {
+      graphics_fill_circle(ctx, GPoint(x, y), 2);
+    } else {
+      break;
+    }
   }
 }
 

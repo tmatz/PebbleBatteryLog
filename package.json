@@ -1,0 +1,24 @@
+{
+    "author": "t.matsuda.1000@gmail.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "batterylog",
+    "pebble": {
+        "displayName": "BatteryLog",
+        "enableMultiJS": false,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": []
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite"
+        ],
+        "uuid": "705c3eb4-90e1-4a63-82fa-ee34c05ce61c",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
