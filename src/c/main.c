@@ -177,6 +177,8 @@ static void update_graph_layer(Layer *layer, GContext *ctx) {
     } else {
       break;
     }
+    x0 = x;
+    y0 = y;
   }
 }
 
